@@ -9,76 +9,139 @@
 import UIKit
 
 
+
+
+protocol WheelSliderDelegate{
+    func updateSliderValue(value:Double) -> ()
+}
+
+
 @IBDesignable
 class WheelSlider: UIView {
     
     private let wheelView:UIView
     
-    private var beforePint:Double = 0
+    private var beforePoint:Double = 0
     private var currentPoint:Double = 0{
         didSet{
             wheelView.layer.removeAllAnimations()
-            wheelView.layer.addAnimation(nextAnimation(), forKey: "sample")
+            wheelView.layer.addAnimation(nextAnimation(), forKey: "rotateAnimation")
+            valueTextLayer?.string = "\(Int(calcCurrentValue()))"
+            delegate?.updateSliderValue(calcCurrentValue())//notofication
         }
     }
+//    defer
     
-    private var beganTouchPosition = CGPointMake(0, 0){
-        didSet{
-            moveTouchPosition = CGPointMake(0, 0)
-        }
-    }
+    private var beganTouchPosition = CGPointMake(0, 0)
     private var moveTouchPosition = CGPointMake(0, 0){
         didSet{
             calcCurrentPoint()
         }
     }
+    private var valueTextLayer:CATextLayer?
+    
+    var delegate : WheelSliderDelegate?
+    
+    //backgroundCircleParameter
+    @IBInspectable public var backStrokeColor : UIColor = UIColor.darkGrayColor()
+    @IBInspectable public var backFillColor : UIColor = UIColor.darkGrayColor()
+    @IBInspectable public var backWidth : CGFloat = 10.0
     
     
+    //knobParameter
+    @IBInspectable public var knobStrokeColor : UIColor = UIColor.blackColor()
+    @IBInspectable public var knobWidth : CGFloat = 10.0
+    @IBInspectable public var knobLength : CGFloat = 0.2
     
-//    @IBInspectable public var minVal:Int = 0
-    @IBInspectable public var maxVal:Int = 100
-    @IBInspectable public var speed : Double = 2.0
-//
+    
+    //logicalParameter
+    @IBInspectable public var minVal:Int = 0
+    @IBInspectable public var maxVal:Int = 10
+    @IBInspectable public var speed:Int = 50
+    @IBInspectable public var isLimited:Bool = false
+    @IBInspectable public var allowNegativeNumber:Bool = true
+    
+    @IBInspectable public var isValueText:Bool = true
+    @IBInspectable public var valueTextColor:UIColor = UIColor.whiteColor()
+    @IBInspectable public var valueTextFontSize:CGFloat = 20.0
+    public lazy var font:UIFont = UIFont.systemFontOfSize(self.valueTextFontSize)
+    
+    
     
     override init(frame: CGRect) {
         wheelView = UIView(frame: CGRectMake(0, 0, frame.width, frame.height))
         super.init(frame: frame)
         addSubview(wheelView)
-       
+        wheelView.layer.addSublayer(drawBackgroundCicle())
+        wheelView.layer.addSublayer(drawPointerCircle())
     }
 
     required init?(coder aDecoder: NSCoder) {
         wheelView = UIView();
         super.init(coder: aDecoder)
         wheelView.frame = bounds
-   
         addSubview(wheelView)
-        drawPointerCircle(1.0)
-//        wheelView.backgroundColor = UIColor.redColor()
-//        wheelView.layer.addAnimation(rotateAnimation(CGFloat(-M_PI),end: CGFloat(M_PI)), forKey: "sample")
-    
         
+        wheelView.layer.addSublayer(drawBackgroundCicle())
+        wheelView.layer.addSublayer(drawPointerCircle())
+        if let layer = drawValueText(){
+            valueTextLayer = layer
+            self.layer.addSublayer(layer)
+        }
     }
     
-    private func drawPointerCircle(currentPoint:CGFloat) -> CAShapeLayer{
+    private func drawValueText()->CATextLayer?{
+        guard(isValueText)else{
+            return nil
+        }
+        
+        let textLayer = CATextLayer()
+        textLayer.string = "\(0)"
+        textLayer.font = font
+    
+        textLayer.fontSize = font.pointSize
+
+        textLayer.frame = CGRectMake(frame.origin.x/2 - bounds.width/2, frame.origin.y/2, bounds.width, bounds.height)
+        textLayer.foregroundColor = valueTextColor.CGColor
+
+        textLayer.alignmentMode = kCAAlignmentCenter
+       
+        textLayer.contentsScale = UIScreen.mainScreen().scale
+        return textLayer
+    }
+    
+    private func drawBackgroundCicle() -> CAShapeLayer{
         let ovalShapeLayer = CAShapeLayer()
-        ovalShapeLayer.strokeColor = UIColor.blueColor().CGColor
+        ovalShapeLayer.strokeColor = backStrokeColor.CGColor
+        ovalShapeLayer.fillColor = backFillColor.CGColor
+        ovalShapeLayer.lineWidth = backWidth
+        let center = CGPoint(x: bounds.width / 2, y: bounds.height / 2)
+        let start = CGFloat(0)
+        let end = CGFloat(2.0 * M_PI)
+        
+        ovalShapeLayer.path = UIBezierPath(arcCenter: center, radius: max(bounds.width, bounds.height) / 2, startAngle:start, endAngle: end ,clockwise: true).CGPath
+        return ovalShapeLayer
+        
+    }
+    private func drawPointerCircle() -> CAShapeLayer{
+        let ovalShapeLayer = CAShapeLayer()
+        ovalShapeLayer.strokeColor = knobStrokeColor.CGColor
         ovalShapeLayer.fillColor = UIColor.clearColor().CGColor
-        ovalShapeLayer.lineWidth = 5.0
+        ovalShapeLayer.lineWidth = knobWidth
+
         let center = CGPoint(x: bounds.width / 2, y: bounds.height / 2)
         let start = CGFloat(M_PI * 3.0/2.0)
-        let end = CGFloat(M_PI * 3.0/2.0 + 0.2)
+        let end = CGFloat(M_PI * 3.0/2.0) + knobLength
 
         ovalShapeLayer.path = UIBezierPath(arcCenter: center, radius: max(bounds.width, bounds.height) / 2, startAngle:start, endAngle: end ,clockwise: true).CGPath
-        wheelView.layer.addSublayer(ovalShapeLayer)
         return ovalShapeLayer
     
     }
     
     private func nextAnimation()->CABasicAnimation{
-        
-        let start = CGFloat(beforePint/Double(maxVal) * M_PI)
-        let end = CGFloat(currentPoint/Double(maxVal) * M_PI)
+
+        let start = CGFloat(beforePoint/Double(speed) * M_PI)
+        let end = CGFloat(currentPoint/Double(speed) * M_PI)
         
         let anim = CABasicAnimation(keyPath: "transform.rotation.z")
         anim.duration = 0
@@ -92,61 +155,66 @@ class WheelSlider: UIView {
     
     }
     
-    private func rotateAnimation(start:CGFloat,end:CGFloat)->CABasicAnimation{
-        let anim = CABasicAnimation(keyPath: "transform.rotation.z")
-        anim.duration = 2.0
-        anim.repeatCount = 1000
-        anim.fromValue = start
-        anim.toValue =  end
-        anim.removedOnCompletion = false
-        return anim
-        
+    private func calcCurrentValue() -> Double{
+        let normalization = Double(maxVal) / Double(speed)
+        let val = currentPoint*normalization/2.0
+        if(isLimited && val >= Double(maxVal)){
+            currentPoint = 0
+        }
+        return val
     }
-    
-    
-    
     
     private func calcCurrentPoint(){
-        guard(true)else{
-            
-        }
-        let centerX = bounds.size.width/2.0
-        beforePint = currentPoint
         
-        if(centerX > moveTouchPosition.x){
-            if(moveTouchPosition.y > beganTouchPosition.y){
-                currentPoint+=speed;
+        let displacementY = abs(beganTouchPosition.y - moveTouchPosition.y)
+        let displacementX = abs(beganTouchPosition.x - moveTouchPosition.x)
+        
+        guard(max(displacementX,displacementY) > 1.0)else{
+            return
+        }
+        guard(allowNegativeNumber || calcCurrentValue() > 0)else{
+            currentPoint++
+            return
+        }
+        
+        let centerX = bounds.size.width/2.0
+        let centerY = bounds.size.height/2.0
+        beforePoint = currentPoint
+        if(displacementX > displacementY){
+            if(centerY > beganTouchPosition.y){
+                if(moveTouchPosition.x >= beganTouchPosition.x){
+                    currentPoint++
+                }else{
+                    currentPoint--
+                }
             }else{
-                currentPoint-=speed;
+                if(moveTouchPosition.x > beganTouchPosition.x){
+                    currentPoint--
+                }else{
+                    currentPoint++
+                }
             }
         }else{
-            if(moveTouchPosition.y > beganTouchPosition.y){
-                currentPoint-=speed;
+            if(centerX <= beganTouchPosition.x){
+                if(moveTouchPosition.y >= beganTouchPosition.y){
+                    currentPoint++
+                }else{
+                    currentPoint--
+                }
             }else{
-                currentPoint+=speed;
+                if(moveTouchPosition.y > beganTouchPosition.y){
+                    currentPoint--
+                }else{
+                    currentPoint++
+                }
             }
         }
-        
-        beganTouchPosition = moveTouchPosition
-        print(moveTouchPosition.y)
-        
-        
-        
-        
     }
-    
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        let touch = touches.first as UITouch?
-        if let t = touch{
-            let pos = t.locationInView(self)
-            beganTouchPosition = pos
-        }
-    }
-    
     override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
         let touch = touches.first as UITouch?
         if let t = touch{
             let pos = t.locationInView(self)
+            beganTouchPosition = moveTouchPosition
             moveTouchPosition = pos
         }
     }

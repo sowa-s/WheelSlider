@@ -16,12 +16,25 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RZw-ES-LMX" customClass="WheelSlider" customModule="WheelSliderSample" customModuleProvider="target">
-                                <rect key="frame" x="180" y="236" width="200" height="200"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RZw-ES-LMX" customClass="WheelSlider" customModule="WheelSliderSample" customModuleProvider="target">
+                                <rect key="frame" x="200" y="200" width="200" height="200"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="200" id="hKj-3f-4Ag"/>
+                                    <constraint firstAttribute="height" constant="200" id="zbd-at-6YR"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="speed">
+                                        <integer key="value" value="50"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="RZw-ES-LMX" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="eke-yP-6LC"/>
+                            <constraint firstItem="RZw-ES-LMX" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="rez-Sg-Rsx"/>
+                        </constraints>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
