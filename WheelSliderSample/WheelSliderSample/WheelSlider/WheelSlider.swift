@@ -59,7 +59,7 @@ public class WheelSlider: UIView {
     
     
     //knobParameter
-    @IBInspectable public var knobStrokeColor : UIColor = UIColor.redColor()
+    @IBInspectable public var knobStrokeColor : UIColor = UIColor.grayColor()
     @IBInspectable public var knobWidth : CGFloat = 25.0
     @IBInspectable public var knobLength : CGFloat = 0.025
     public var knobLineCap = WSKnobLineCap.WSLineCapRound
@@ -67,7 +67,7 @@ public class WheelSlider: UIView {
  
     @IBInspectable public var minVal:Int = 0
     @IBInspectable public var maxVal:Int = 10
-    @IBInspectable public var speed:Int = 50
+    @IBInspectable public var speed:Int = 40
     @IBInspectable public var isLimited:Bool = false
     @IBInspectable public var allowNegativeNumber:Bool = true
     @IBInspectable public var isValueText:Bool = true
