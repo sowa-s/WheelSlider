@@ -59,8 +59,8 @@ public class WheelSlider: UIView {
     
     
     //knobParameter
-    @IBInspectable public var knobStrokeColor : UIColor = UIColor.grayColor()
-    @IBInspectable public var knobWidth : CGFloat = 25.0
+    @IBInspectable public var knobStrokeColor : UIColor = UIColor.whiteColor()
+    @IBInspectable public var knobWidth : CGFloat = 30.0
     @IBInspectable public var knobLength : CGFloat = 0.025
     public var knobLineCap = WSKnobLineCap.WSLineCapRound
     
