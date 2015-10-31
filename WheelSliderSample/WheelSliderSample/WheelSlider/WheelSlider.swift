@@ -8,9 +8,6 @@
 
 import UIKit
 
-
-
-
 protocol WheelSliderDelegate{
     func updateSliderValue(value:Double) -> ()
 }
@@ -30,8 +27,6 @@ class WheelSlider: UIView {
             delegate?.updateSliderValue(calcCurrentValue())//notofication
         }
     }
-//    defer
-    
     private var beganTouchPosition = CGPointMake(0, 0)
     private var moveTouchPosition = CGPointMake(0, 0){
         didSet{
@@ -158,8 +153,10 @@ class WheelSlider: UIView {
     private func calcCurrentValue() -> Double{
         let normalization = Double(maxVal) / Double(speed)
         let val = currentPoint*normalization/2.0
-        if(isLimited && val >= Double(maxVal)){
-            currentPoint = 0
+        if(isLimited && val > Double(maxVal)){
+            currentPoint = 1
+            print(beforePoint)
+            beforePoint = 0
         }
         return val
     }

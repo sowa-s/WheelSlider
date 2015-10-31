@@ -27,6 +27,8 @@
                                     <userDefinedRuntimeAttribute type="number" keyPath="speed">
                                         <integer key="value" value="50"/>
                                     </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="isLimited" value="YES"/>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="allowNegativeNumber" value="NO"/>
                                 </userDefinedRuntimeAttributes>
                             </view>
                         </subviews>
@@ -36,6 +38,9 @@
                             <constraint firstItem="RZw-ES-LMX" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="rez-Sg-Rsx"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="slider" destination="RZw-ES-LMX" id="Kns-Va-AY8"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
