@@ -21,9 +21,10 @@ Value Notification.
 Rotational speed.
 Since the smaller the value is fast note.
 
-```
+
 
 ```
+
 //backgroundCircleParameter
 @IBInspectable public var backStrokeColor : UIColor = UIColor.darkGrayColor()
 @IBInspectable public var backFillColor : UIColor = UIColor.darkGrayColor()
@@ -41,6 +42,8 @@ public var knobLineCap = WSKnobLineCap.WSLineCapRound
 @IBInspectable public var isValueText:Bool = true
 @IBInspectable public var valueTextColor:UIColor = UIColor.whiteColor()
 @IBInspectable public var valueTextFontSize:CGFloat = 20.0
+
 ```
+
 後で書く
 
