@@ -14,11 +14,17 @@ class ViewController: UIViewController,WheelSliderDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         slider.delegate = self
+        slider.callback = {(value:Double) in
+            print(value)
+            
+        }
         // Do any additional setup after loading the view, typically from a nib.
     }
-    func updateSliderValue(value: Double) {
+    
+    func updateSliderValue(value: Double, sender: WheelSlider) {
         print("currentValue \(value)")
     }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.

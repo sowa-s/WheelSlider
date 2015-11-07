@@ -49,70 +49,30 @@ public class WheelSlider: UIView {
             calcCurrentPoint()
         }
     }
-    
-    private let backgroundLayer:CAShapeLayer = CAShapeLayer()
-    private let knobLayer:CAShapeLayer = CAShapeLayer()
     private var valueTextLayer:CATextLayer?
     
     var delegate : WheelSliderDelegate?
     public var callback : ((Double) -> ())?
     
     //backgroundCircleParameter
-    @IBInspectable public var backStrokeColor : UIColor = UIColor.darkGrayColor(){
-        didSet{
-            setStrokeColor(backgroundLayer, color: backStrokeColor)
-        }
-    }
-    @IBInspectable public var backFillColor : UIColor = UIColor.darkGrayColor(){
-        didSet{
-            setFillColor(backgroundLayer, color: backFillColor)
-        }
-    }
-    @IBInspectable public var backWidth : CGFloat = 10.0{
-        didSet{
-            setLayerWidth(backgroundLayer, width: backWidth)
-        }
-    }
+    @IBInspectable public var backStrokeColor : UIColor = UIColor.darkGrayColor()
+    @IBInspectable public var backFillColor : UIColor = UIColor.darkGrayColor()
+    @IBInspectable public var backWidth : CGFloat = 10.0
     
     
     //knobParameter
-    @IBInspectable public var knobStrokeColor : UIColor = UIColor.whiteColor(){
-        didSet{
-            setStrokeColor(knobLayer, color: knobStrokeColor)
-        }
-    }
-    @IBInspectable public var knobWidth : CGFloat = 30.0{
-        didSet{
-            setLayerWidth(knobLayer, width: knobWidth)
-        }
-    }
-    @IBInspectable public var knobLength : CGFloat = 0.025{
-        didSet{
-            setKnobLayerLength(knobLayer, len: knobLength)
-        }
-    }
-    public var knobLineCap = WSKnobLineCap.WSLineCapRound{
-        didSet{
-            setKnobLayerLineCap(knobLayer, cap: knobLineCap)
-        }
-    }
+    @IBInspectable public var knobStrokeColor : UIColor = UIColor.whiteColor()
+    @IBInspectable public var knobWidth : CGFloat = 30.0
+    @IBInspectable public var knobLength : CGFloat = 0.025
+    public var knobLineCap = WSKnobLineCap.WSLineCapRound
     
+ 
+    @IBInspectable public var minVal:Int = 0
     @IBInspectable public var maxVal:Int = 10
     @IBInspectable public var speed:Int = 40
     @IBInspectable public var isLimited:Bool = false
     @IBInspectable public var allowNegativeNumber:Bool = true
-    @IBInspectable public var isValueText:Bool = false{
-        didSet{
-            if(isValueText){
-                if let layer = drawValueText(){
-                    valueTextLayer = layer
-                    self.layer.addSublayer(layer)
-                }
-            }else{
-                valueTextLayer?.foregroundColor = UIColor.clearColor().CGColor
-            }
-        }
-    }
+    @IBInspectable public var isValueText:Bool = true
     @IBInspectable public var valueTextColor:UIColor = UIColor.whiteColor()
     @IBInspectable public var valueTextFontSize:CGFloat = 20.0
     public lazy var font:UIFont = UIFont.systemFontOfSize(self.valueTextFontSize)
@@ -121,10 +81,12 @@ public class WheelSlider: UIView {
         wheelView = UIView(frame: CGRectMake(0, 0, frame.width, frame.height))
         super.init(frame: frame)
         addSubview(wheelView)
-        drawBackgroundCicle()
-        drawPointerCircle()
-        wheelView.layer.addSublayer(backgroundLayer)
-        wheelView.layer.addSublayer(knobLayer)
+        wheelView.layer.addSublayer(drawBackgroundCicle())
+        wheelView.layer.addSublayer(drawPointerCircle())
+        if let layer = drawValueText(){
+            valueTextLayer = layer
+            self.layer.addSublayer(layer)
+        }
     }
 
     required public init?(coder aDecoder: NSCoder) {
@@ -132,10 +94,12 @@ public class WheelSlider: UIView {
         super.init(coder: aDecoder)
         wheelView.frame = bounds
         addSubview(wheelView)
-        drawBackgroundCicle()
-        drawPointerCircle()
-        wheelView.layer.addSublayer(backgroundLayer)
-        wheelView.layer.addSublayer(knobLayer)
+        wheelView.layer.addSublayer(drawBackgroundCicle())
+        wheelView.layer.addSublayer(drawPointerCircle())
+        if let layer = drawValueText(){
+            valueTextLayer = layer
+            self.layer.addSublayer(layer)
+        }
     }
     
     private func drawValueText()->CATextLayer?{
@@ -146,59 +110,45 @@ public class WheelSlider: UIView {
         textLayer.string = "\(0)"
         textLayer.font = font
         textLayer.fontSize = font.pointSize
-        textLayer.frame = CGRectMake(wheelView.bounds.width/2 - valueTextFontSize, wheelView.frame.height/2 - valueTextFontSize/2.0, valueTextFontSize*2.0,valueTextFontSize*2.0)
+        textLayer.frame = CGRectMake(frame.origin.x/2 - bounds.width/2, frame.origin.y/2, bounds.width, bounds.height)
         textLayer.foregroundColor = valueTextColor.CGColor
         textLayer.alignmentMode = kCAAlignmentCenter
         textLayer.contentsScale = UIScreen.mainScreen().scale
         return textLayer
     }
     
-    private func drawBackgroundCicle(){
-        backgroundLayer.strokeColor = backStrokeColor.CGColor
-        backgroundLayer.fillColor = backFillColor.CGColor
-        backgroundLayer.lineWidth = backWidth
+    private func drawBackgroundCicle() -> CAShapeLayer{
+        let ovalShapeLayer = CAShapeLayer()
+        ovalShapeLayer.strokeColor = backStrokeColor.CGColor
+        ovalShapeLayer.fillColor = backFillColor.CGColor
+        ovalShapeLayer.lineWidth = backWidth
         let center = CGPoint(x: bounds.width / 2, y: bounds.height / 2)
         let start = CGFloat(0)
         let end = CGFloat(2.0 * M_PI)
-        backgroundLayer.path = UIBezierPath(arcCenter: center, radius: max(bounds.width, bounds.height) / 2, startAngle:start, endAngle: end ,clockwise: true).CGPath
+        ovalShapeLayer.path = UIBezierPath(arcCenter: center, radius: max(bounds.width, bounds.height) / 2, startAngle:start, endAngle: end ,clockwise: true).CGPath
+        return ovalShapeLayer
         
     }
-    private func drawPointerCircle(){
-        knobLayer.strokeColor = knobStrokeColor.CGColor
-        knobLayer.fillColor = UIColor.clearColor().CGColor
-        knobLayer.lineWidth = knobWidth
-        knobLayer.lineCap = knobLineCap.getLineCapValue
+    private func drawPointerCircle() -> CAShapeLayer{
+        let ovalShapeLayer = CAShapeLayer()
+        ovalShapeLayer.strokeColor = knobStrokeColor.CGColor
+        ovalShapeLayer.fillColor = UIColor.clearColor().CGColor
+        ovalShapeLayer.lineWidth = knobWidth
+        ovalShapeLayer.lineCap = knobLineCap.getLineCapValue
         let center = CGPoint(x: bounds.width / 2, y: bounds.height / 2)
         let start = CGFloat(M_PI * 3.0/2.0)
         let end = CGFloat(M_PI * 3.0/2.0) + knobLength
-        knobLayer.path = UIBezierPath(arcCenter: center, radius: max(bounds.width, bounds.height) / 2, startAngle:start, endAngle: end ,clockwise: true).CGPath
-    }
+
+        ovalShapeLayer.path = UIBezierPath(arcCenter: center, radius: max(bounds.width, bounds.height) / 2, startAngle:start, endAngle: end ,clockwise: true).CGPath
+        return ovalShapeLayer
     
-    private func setStrokeColor(layer:CAShapeLayer,color:UIColor){
-        layer.strokeColor = color.CGColor
     }
-    private func setFillColor(layer:CAShapeLayer,color:UIColor){
-        layer.fillColor = color.CGColor
-    }
-    private func setLayerWidth(layer:CAShapeLayer,width:CGFloat){
-        layer.lineWidth = width
-    }
-    private func setKnobLayerLength(layer:CAShapeLayer,len:CGFloat){
-        let center = CGPoint(x: bounds.width / 2, y: bounds.height / 2)
-        let start = CGFloat(M_PI * 3.0/2.0)
-        let end = CGFloat(M_PI * 3.0/2.0) + len
-        layer.path = UIBezierPath(arcCenter: center, radius: max(bounds.width, bounds.height) / 2, startAngle:start, endAngle: end ,clockwise: true).CGPath
-    }
-    private func setKnobLayerLineCap(layer:CAShapeLayer,cap:WSKnobLineCap){
-        layer.lineCap = cap.getLineCapValue
-    }
-//    private func 
-    
-    
     
     private func nextAnimation()->CABasicAnimation{
+
         let start = CGFloat(beforePoint/Double(speed) * M_PI)
         let end = CGFloat(currentPoint/Double(speed) * M_PI)
+        
         let anim = CABasicAnimation(keyPath: "transform.rotation.z")
         anim.duration = 0
         anim.repeatCount = 0
